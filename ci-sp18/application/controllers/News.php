@@ -7,16 +7,15 @@ class News extends CI_Controller {
                 parent::__construct();
                 $this->load->model('news_model');
                 $this->load->helper('url_helper');
+            $this->config->set_item('banner', 'News Banner');
         }//close construct
 
        public function index()
         {
             $data['news'] = $this->news_model->get_news();
-            $data['title'] = 'News archive';
-
-            //$this->load->view('templates/header', $data);
+            //$data['title'] = 'News archive';
+            $this->config->set_item('title', 'News Title');
             $this->load->view('news/index', $data);
-            //$this->load->view('templates/footer', $data);
         }  //close index 
         public function view($slug = NULL)
         {
@@ -29,9 +28,7 @@ class News extends CI_Controller {
 
                 $data['title'] = $data['news_item']['title'];
 
-                $this->load->view('templates/header', $data);
                 $this->load->view('news/view', $data);
-                $this->load->view('templates/footer', $data);
         }//close view
     
         public function create()
@@ -46,18 +43,25 @@ class News extends CI_Controller {
 
             if ($this->form_validation->run() === FALSE)
             {
-                $this->load->view('templates/header', $data);
                 $this->load->view('news/create', $data);
-                $this->load->view('templates/footer', $data);
 
             }
             else
             {
-                $this->news_model->set_news();
-                $this->load->view('templates/header', $data);
-                $this->load->view('news/success');
-                $this->load->view('templates/footer', $data);
-            }
+                $slug = $this->news_model->set_news();
+
+            if($this->news_model->set_news()!== false){
+              //data has been entereed - show page 
+                feedback('News item successfully entered!','info');
+                redirect('/news/views/' . $slug);
+            }else{//problem!! show warming
+                feedback('News item NOT created', 'error');
+                redirect('/news/views/');
+                }
+            
+            }//closing else block from create() method
+            
         }//close create
+        
     
 }//close CI_Controller
